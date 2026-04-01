@@ -1,0 +1,11 @@
+name = "git-lfs-cloudflare"
+main = "src/index.ts"
+compatibility_date = "2025-03-27"
+
+[[r2_buckets]]
+binding = "LFS_BUCKET"
+bucket_name = "git-lfs"
+
+# Uncomment and set these secrets via `wrangler secret put`:
+# wrangler secret put LFS_AUTH_USER
+# wrangler secret put LFS_AUTH_PASSWORD
