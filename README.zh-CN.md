@@ -1,5 +1,6 @@
 # git-lfs-cloudflare
 
+[![CI](https://github.com/Fenyutanchan/git-lfs-cloudflare/actions/workflows/ci.yml/badge.svg)](https://github.com/Fenyutanchan/git-lfs-cloudflare/actions/workflows/ci.yml)
 [English](README.md)
 
 基于 Cloudflare Workers + R2 的 Git LFS 服务器实现。
@@ -15,6 +16,8 @@ Git LFS Client ←→ Cloudflare Worker (API + Auth) ←→ R2 (Object Storage)
 - **Basic Auth** 认证，凭证存于 Worker Secrets
 
 ### API 路由
+
+所有路由均支持 `.git` 后缀变体（例如 `/:owner/:repo.git/info/lfs/objects/batch`）。
 
 | 方法   | 路径                                          | 说明               |
 | ------ | --------------------------------------------- | ------------------ |
@@ -73,6 +76,18 @@ LFS_AUTH_USER=your-username
 LFS_AUTH_PASSWORD=your-password
 ```
 
+### 6. 测试
+
+```bash
+# 运行全部测试
+bun run test
+
+# 开发时使用监听模式
+bun run test:watch
+```
+
+测试在每次推送/PR 时通过 [GitHub Actions](.github/workflows/ci.yml) 自动运行。
+
 ## Git 客户端配置
 
 在你的 Git 仓库中配置 LFS 使用此服务器：
@@ -107,7 +122,7 @@ routes = [
 
 ## 安全说明
 
-- 所有请求都需要 Basic Auth 认证
+- 所有请求都需要 Basic Auth 认证，使用常量时间比较防止时序攻击
 - R2 对象上传时使用 SHA-256 校验（OID 即为 SHA-256 哈希），防止数据篡改
 - 建议通过 HTTPS 访问（Workers 默认 HTTPS）
 - 生产环境建议使用强密码或集成 OAuth/Token 认证

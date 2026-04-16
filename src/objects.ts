@@ -1,10 +1,5 @@
 import type { Env } from "./types";
-
-const OID_REGEX = /^[0-9a-f]{64}$/;
-
-function r2Key(repo: string, oid: string): string {
-  return `${repo}/${oid.slice(0, 2)}/${oid.slice(2, 4)}/${oid}`;
-}
+import { OID_REGEX, r2Key, lfsError } from "./utils";
 
 export async function handleUpload(
   request: Request,
@@ -24,6 +19,10 @@ export async function handleUpload(
   const size = parseInt(contentLength, 10);
   if (isNaN(size) || size < 0) {
     return lfsError(400, "Invalid Content-Length");
+  }
+
+  if (!request.body) {
+    return lfsError(400, "Request body is required");
   }
 
   const key = r2Key(repo, oid);
@@ -111,14 +110,4 @@ function hexToArrayBuffer(hex: string): ArrayBuffer {
     bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
   }
   return bytes.buffer;
-}
-
-function lfsError(code: number, message: string): Response {
-  return new Response(
-    JSON.stringify({ message }),
-    {
-      status: code,
-      headers: { "Content-Type": "application/vnd.git-lfs+json" },
-    },
-  );
 }

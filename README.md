@@ -1,5 +1,6 @@
 # git-lfs-cloudflare
 
+[![CI](https://github.com/Fenyutanchan/git-lfs-cloudflare/actions/workflows/ci.yml/badge.svg)](https://github.com/Fenyutanchan/git-lfs-cloudflare/actions/workflows/ci.yml)
 [中文文档](README.zh-CN.md)
 
 A Git LFS server implementation powered by Cloudflare Workers + R2.
@@ -15,6 +16,8 @@ Git LFS Client ←→ Cloudflare Worker (API + Auth) ←→ R2 (Object Storage)
 - **Basic Auth** with credentials stored in Worker Secrets
 
 ### API Routes
+
+All routes also support the `.git` suffix variant (e.g. `/:owner/:repo.git/info/lfs/objects/batch`).
 
 | Method | Path                                          | Description            |
 | ------ | --------------------------------------------- | ---------------------- |
@@ -73,6 +76,18 @@ LFS_AUTH_USER=your-username
 LFS_AUTH_PASSWORD=your-password
 ```
 
+### 6. Testing
+
+```bash
+# Run all tests
+bun run test
+
+# Watch mode during development
+bun run test:watch
+```
+
+Tests run automatically on push/PR via [GitHub Actions](.github/workflows/ci.yml).
+
 ## Git Client Configuration
 
 Configure LFS in your Git repository to use this server:
@@ -107,7 +122,7 @@ Or set up a Custom Domain via the Cloudflare Dashboard.
 
 ## Security
 
-- All requests require Basic Auth
+- All requests require Basic Auth with constant-time credential comparison (prevents timing attacks)
 - R2 uploads are validated with SHA-256 checksums (the OID is the SHA-256 hash), preventing data tampering
 - HTTPS by default (Workers always serve over HTTPS)
 - For production, use strong passwords or integrate OAuth/Token authentication

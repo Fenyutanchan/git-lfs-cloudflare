@@ -1,6 +1,6 @@
 import type { Env, LfsBatchRequest, LfsBatchResponse, LfsBatchResponseObject } from "./types";
+import { OID_REGEX, r2Key, lfsError } from "./utils";
 
-const OID_REGEX = /^[0-9a-f]{64}$/;
 const EXPIRES_IN = 3600; // 1 hour
 
 function validateBatchRequest(body: LfsBatchRequest): string | null {
@@ -19,11 +19,6 @@ function validateBatchRequest(body: LfsBatchRequest): string | null {
     }
   }
   return null;
-}
-
-function r2Key(repo: string, oid: string): string {
-  // Store as {repo}/{oid[0:2]}/{oid[2:4]}/{oid} for better key distribution
-  return `${repo}/${oid.slice(0, 2)}/${oid.slice(2, 4)}/${oid}`;
 }
 
 export async function handleBatch(
@@ -104,7 +99,7 @@ function buildUploadObject(
         expires_in: EXPIRES_IN,
       },
       verify: {
-        href: `${origin}/${repo}/objects/verify`,
+        href: `${origin}/${repo}/info/lfs/objects/verify`,
         header: authHeader ? { Authorization: authHeader } : undefined,
         expires_in: EXPIRES_IN,
       },
@@ -134,14 +129,4 @@ function buildDownloadObject(
       },
     },
   };
-}
-
-function lfsError(code: number, message: string): Response {
-  return new Response(
-    JSON.stringify({ message }),
-    {
-      status: code,
-      headers: { "Content-Type": "application/vnd.git-lfs+json" },
-    },
-  );
 }

@@ -2,8 +2,7 @@ import type { Env } from "./types";
 import { authenticate, unauthorizedResponse } from "./auth";
 import { handleBatch } from "./batch";
 import { handleUpload, handleDownload, handleVerify } from "./objects";
-
-const LFS_CONTENT_TYPE = "application/vnd.git-lfs+json";
+import { LFS_CONTENT_TYPE } from "./utils";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -13,7 +12,7 @@ export default {
     }
 
     // Authenticate all requests
-    if (!authenticate(request, env)) {
+    if (!(await authenticate(request, env))) {
       return unauthorizedResponse();
     }
 
